@@ -1,3 +1,27 @@
+## Redux
+
+store에서 reducer를 이용하여 모든 component에 대한 state 관리
+action가 dispatch하면 reducer가 받은 type에 따라서 처리
+
+### store.js
+
+createStore(reducer, [preloadedState], [enhancer])
+compose() to enhance a store with applyMiddleware and a few developer tools from the redux-devtools package.
+thunk는 함수나 비동기 처리에 사용
+
+### authAction.js , types.js
+
+import dispatch type from types.js
+
+### <component>.js
+
+mapStateToProps는 Store가 가진 state를 어떻게 props에 엮을 지 정의
+
+`const mapStateToProps = state => ({
+    auth: state.auth,
+    errors: state.errors
+});`
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

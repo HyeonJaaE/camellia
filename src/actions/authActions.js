@@ -4,37 +4,22 @@ import jwt_decode from "jwt-decode";
 
 import { GET_ERRORS, SET_CURRENT_USER, USER_LOADING } from "./types";
 
-export const signUp
 //Sign up
 export const registerUser = (userData, history) => dispatch => {
     axios
         .post("/users/add", userData)
         .then(res => history.push("/login"))
-        .catch(err => dispatch({
-            type: GET_ERRORS,
-            payload: err.response.data
-        })
-    );
-};
-
-//login
-export const loginUser = userData => dispatch => {
-    console.log("loginUser 함수 호출" + userData);
-    axios
-        .post("/users/login", userData)
-        .then(res => {
-            const { token } = res.data;
-            localStorage.setItem("jwtToken", token);
-            setAuthToken(token);
-            const decoded = jwt_decode(token);
-            dispatch(setCurrentUser(decoded));
-        })
         .catch(err =>
             dispatch({
                 type: GET_ERRORS,
                 payload: err.response.data
             })
         );
+};
+
+//login
+export const loginUser = userData => dispatch => {
+    console.log("loginUser 함수 호출" + userData);
 };
 
 // set logged in user
