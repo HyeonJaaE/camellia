@@ -1,23 +1,8 @@
 import React, { Component } from "react";
-//import { Link } from 'react-router-dom';
-//import axios from "axios";
 
 class Card extends Component {
-    constructor() {
-        super();
-        this.state = {
-            __dir: "http://localhost:5000/",
-            dir1: "",
-            dir2: ""
-        };
-    }
-
-    componentDidMount() {
-        console.log(this.props);
-        this.setState({
-            dir1: this.state.__dir + this.props.dir1,
-            dir2: this.state.__dir + this.props.dir2
-        });
+    constructor(props) {
+        super(props);
     }
 
     render() {
@@ -25,29 +10,57 @@ class Card extends Component {
             <div
                 className="card border-0 my-3"
                 onClick={() => {
-                    window.location = "/vs/" + this.props.contentNum;
+                    window.location = "/vs/" + this.props.id;
                 }}
                 style={{ cursor: "pointer" }}
             >
                 <div className="col p-0">
-                    <img
-                        className="card-img-top"
-                        src={this.state.dir1}
-                        style={{ height: "300px", width: "50%" }}
-                        alt="agjrgioajregioaejrgio"
-                    ></img>
-                    <img
-                        className="card-img-top"
-                        src={this.state.dir2}
-                        style={{ height: "300px", width: "50%" }}
-                        alt=""
-                    ></img>
+                    {this.props.url ? (
+                        <>
+                            <img
+                                className="card-img-top"
+                                src={this.props.url[0]}
+                                style={{ height: "300px", width: "50%" }}
+                                alt="agjrgioajregioaejrgio"
+                            ></img>
+                            <img
+                                className="card-img-top"
+                                src={this.props.url[1]}
+                                style={{ height: "300px", width: "50%" }}
+                                alt=""
+                            ></img>
+                        </>
+                    ) : (
+                        <div className="row m-0 pt-4">
+                            <div
+                                className="col-6 p-0"
+                                style={{
+                                    height: "200px",
+                                    width: "50%",
+                                    backgroundColor: "rgb(247, 202, 201)"
+                                }}
+                            >
+                                <h3>{this.props.sub[0]}</h3>
+                            </div>
+                            <div
+                                className="col-6 p-0 "
+                                style={{
+                                    height: "200px",
+                                    width: "50%",
+                                    backgroundColor: "rgb(145, 168, 209)"
+                                }}
+                            >
+                                <h3>{this.props.sub[1]}</h3>
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="card-img-overlay p-0">
                     <h5
-                        className="card-title text-center bg-dark"
+                        className="card-title text-center"
                         style={{
-                            color: "white"
+                            color: "white",
+                            backgroundColor: "rgb(51, 85, 139)"
                         }}
                     >
                         {this.props.title}

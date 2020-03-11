@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import Nav from "./Nav";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
@@ -10,6 +10,7 @@ class Login extends Component {
     constructor() {
         super();
         this.state = {
+            user: null,
             email: "",
             password: "",
             errors: {}
@@ -24,6 +25,7 @@ class Login extends Component {
 
     onSubmit = e => {
         e.preventDefault();
+
         firebase
             .auth()
             .signInWithEmailAndPassword(this.state.email, this.state.password)
@@ -35,6 +37,7 @@ class Login extends Component {
                 var errorCode = error.code;
                 var errorMessage = error.message;
                 console.log(errorMessage);
+                console.log(errorCode);
                 // ...
             });
     };
@@ -130,4 +133,4 @@ const mapStateToProps = state => ({
     errors: state.errors
 });
 
-export default connect(mapStateToProps, { loginUser })(Login);
+export default connect(mapStateToProps, { loginUser })(withRouter(Login));

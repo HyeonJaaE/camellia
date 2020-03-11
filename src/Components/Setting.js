@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import axios from "axios";
-import { connect } from "react-redux";
 
+import { connect } from "react-redux";
+import firebase from "../firebase";
 import Card from "./Card";
 import Nav from "./Nav";
 //import { GET_ERRORS } from '../actions/types';
@@ -12,35 +12,24 @@ class Setting extends Component {
         super();
         this.state = {
             title: "",
-            name1: "",
-            name2: "",
+            subtitle1: "",
+            subtitle2: "",
             file1: null,
             file2: null,
             option: "txt",
+            url1: null,
+            url2: null,
+            data: null,
             errors: {}
         };
     }
 
-    componentDidMount() {
-        //console.log(this.props.auth);
-        // If logged in and user navigates to Login page, should redirect them to dashboard
-        if (!this.props.auth.isAuthenticated) {
-            window.alert("로그인 후 이용가능합니다");
-            this.props.history.push("/");
+    componentDidUpdate() {
+        if (this.state.url1 !== null && this.state.url2 !== null) {
+            var _data = this.state.data;
+            _data.url = [this.state.url1, this.state.url2];
+            this.docSet(_data);
         }
-    }
-
-    componentWillReceiveProps(nextProps) {
-        //로그아웃 하면 생성화면에서 메인화면으로 다시 이동
-        console.log(this.state.option);
-        if (!nextProps.auth.isAuthenticated) {
-            window.alert("로그인 후 이용가능합니다");
-            this.props.history.push("/");
-        }
-    }
-
-    componentWillUpdate() {
-        console.log(this.state.file1);
     }
 
     handleChange = e => {
@@ -53,79 +42,110 @@ class Setting extends Component {
                 [e.target.id]: e.target.value
             });
         }
-        console.log(this.state.option);
-    };
-
-    handleChangeFile = event => {
-        let reader = new FileReader();
-        reader.onloadend = e => {
-            // 2. 읽기가 완료되면 아래코드가 실행
-            const base64 = reader.result; //reader.result는 이미지를 인코딩(base64 ->이미지를 text인코딩)한 결괏값이 나온다.
-            if (base64) {
-                this.setState({
-                    imgBase64: base64.toString() // 파일 base64 상태 업데이트
-                });
-            }
-        };
-        if (event.target.files[0]) {
-            reader.readAsDataURL(event.target.files[0]); // 1. 파일을 읽어 버퍼에 저장합니다. 저장후 onloadend 트리거
-            this.setState({
-                imgFile: event.target.files[0] // 파일 상태 업데이트 업로드 하는것은 파일이기 때문에 관리 필요
-            });
-        }
     };
 
     onSubmit = e => {
         e.preventDefault();
-        console.log("data : ");
+        var _data = {
+            author: {
+                id: this.props.auth.user.email,
+                name: this.props.auth.user.displayName
+            },
+            subtitle: [this.state.subtitle1, this.state.subtitle2],
+            title: this.state.title,
+            type: this.state.option,
+            view: 0,
+            voteA: [],
+            voteB: [],
+            date: firebase.firestore.FieldValue.serverTimestamp()
+        };
 
         if (this.state.option === "img") {
-            //when content-type is img
-            const setData = new FormData();
-
-            setData.append("contentType", this.state.option);
-            setData.append("contentAuthorId", this.props.auth.user.id);
-            setData.append("contentAuthorName", this.props.auth.user.name);
-            setData.append("title", this.state.title);
-            setData.append("name1", this.state.name1);
-            setData.append("name2", this.state.name2);
-            setData.append("file1", this.state.file1);
-            setData.append("file2", this.state.file2);
-
-            for (var pair of setData.entries()) {
-                console.log(pair[0] + ", " + pair[1]);
-            }
-            axios
-                .post("/contents/addWithFile", setData, {
-                    headers: { "Content-Type": "multipart/form-data" }
-                })
-                .then(res => {
-                    //console.log(res);
-                    this.props.history.push("/");
-                })
-                .catch(error => {
-                    console.log(error.message);
-                });
+            this.setState({
+                data: _data
+            });
+            this.fileUpload(this.state.file1, 1);
+            this.fileUpload(this.state.file2, 2);
         } else {
-            //when content-type is txt
-            const _setData = {
-                contentType: this.state.option,
-                contentAuthorId: this.props.auth.user.id,
-                contentAuthorName: this.props.auth.user.name,
-                title: this.state.title,
-                name1: this.state.name1,
-                name2: this.state.name2
-            };
-            axios
-                .post("/contents/addWithNoFile", _setData)
-                .then(res => {
-                    //console.log(res);
-                    this.props.history.push("/");
-                })
-                .catch(error => {
-                    console.log(error.message);
-                });
+            this.docSet(_data);
         }
+    };
+
+    docSet = e => {
+        console.log("e", e);
+        var db = firebase.firestore();
+        db.collection("contents")
+            .doc()
+            .set(e)
+            .then(docRef => {
+                console.log("Document written with ID: ", docRef);
+                this.props.history.push("/");
+            })
+            .catch(function(error) {
+                console.error("Error adding document: ", error);
+            });
+    };
+
+    fileUpload = (e, o) => {
+        var storageRef = firebase.storage().ref();
+        // File or Blob named mountains.jpg
+        var file = e;
+        // Create the file metadata
+        var metadata = {
+            contentType: "image"
+        };
+
+        // Upload file and metadata to the object 'images/mountains.jpg'
+        var uploadTask = storageRef.child("img/" + Date.now() + file.name).put(file, metadata);
+
+        // Listen for state changes, errors, and completion of the upload.
+        uploadTask.on(
+            firebase.storage.TaskEvent.STATE_CHANGED, // or 'state_changed'
+            function(snapshot) {
+                // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+                var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                console.log("Upload is " + progress + "% done");
+                switch (snapshot.state) {
+                    case firebase.storage.TaskState.PAUSED: // or 'paused'
+                        console.log("Upload is paused");
+                        break;
+                    case firebase.storage.TaskState.RUNNING: // or 'running'
+                        console.log("Upload is running");
+                        break;
+                }
+            },
+            function(error) {
+                // A full list of error codes is available at
+                // https://firebase.google.com/docs/storage/web/handle-errors
+                switch (error.code) {
+                    case "storage/unauthorized":
+                        // User doesn't have permission to access the object
+                        break;
+
+                    case "storage/canceled":
+                        // User canceled the upload
+                        break;
+
+                    case "storage/unknown":
+                        // Unknown error occurred, inspect error.serverResponse
+                        break;
+                }
+            },
+            () => {
+                // Upload completed successfully, now we can get the download URL
+                uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
+                    console.log("File available at", downloadURL);
+                    switch (o) {
+                        case 1:
+                            this.setState({ url1: downloadURL });
+                            break;
+                        case 2:
+                            this.setState({ url2: downloadURL });
+                            break;
+                    }
+                });
+            }
+        );
     };
 
     render() {
@@ -139,6 +159,7 @@ class Setting extends Component {
                                 src={this.state.imgBase64}
                                 onClick={this.handleRemove}
                                 style={{ width: "100px", height: "100px" }}
+                                alt=""
                             ></img>
                         ) : (
                             <div></div>
@@ -149,7 +170,7 @@ class Setting extends Component {
                             <div className="row">
                                 <div className="col-2">
                                     <select
-                                        class="form-control"
+                                        className="form-control"
                                         id="option"
                                         onChange={this.handleChange}
                                     >
@@ -174,9 +195,9 @@ class Setting extends Component {
                             <div className="row mt-4" style={{}}>
                                 <div className="col-6 text-center">
                                     <textarea
-                                        class="form-control"
+                                        className="form-control"
                                         rows="8"
-                                        id="name1"
+                                        id="subtitle1"
                                         onChange={this.handleChange}
                                         required
                                         style={{ resize: "none" }}
@@ -189,6 +210,7 @@ class Setting extends Component {
                                             id="file1"
                                             name="file1"
                                             onChange={this.handleChange}
+                                            required
                                         />
                                     ) : (
                                         <input
@@ -205,9 +227,9 @@ class Setting extends Component {
 
                                 <div className="col-6 text-center">
                                     <textarea
-                                        class="form-control"
+                                        className="form-control"
                                         rows="8"
-                                        id="name2"
+                                        id="subtitle2"
                                         onChange={this.handleChange}
                                         required
                                         style={{ resize: "none" }}
@@ -219,7 +241,8 @@ class Setting extends Component {
                                             className="form-control-file"
                                             id="file2"
                                             name="file2"
-                                            onChange={this.handleChangeFile}
+                                            onChange={this.handleChange}
+                                            required
                                         />
                                     ) : (
                                         <input
@@ -235,22 +258,22 @@ class Setting extends Component {
                                 </div>
                             </div>
 
-                            <div stlye={{ visibility: "hidden" }}>
-                                <Card
-                                    title={this.state.title}
-                                    name1={this.state.name1}
-                                    nmae2={this.state.name2}
-                                />
-                            </div>
+                            <div stlye={{ display: "none" }}></div>
 
                             <div className="row justify-content-end">
-                                <button
-                                    className="btn btn-outline-secondary btn-sm"
-                                    type="submit"
-                                    value="submit"
-                                >
-                                    작성
-                                </button>
+                                {this.state.data ? (
+                                    <div className="spinner-border text-secondary" role="status">
+                                        <span className="sr-only">Loading...</span>
+                                    </div>
+                                ) : (
+                                    <button
+                                        className="btn btn-outline-secondary btn-sm"
+                                        type="submit"
+                                        value="submit"
+                                    >
+                                        작성
+                                    </button>
+                                )}
                             </div>
                         </form>
                     </div>

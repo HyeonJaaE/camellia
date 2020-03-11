@@ -2,16 +2,9 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { logoutUser } from "../actions/authActions";
-import firebase, { auth } from "../firebase";
+import firebase from "../firebase";
 
 class Nav extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            user: auth.currentUser
-        };
-    }
-
     onLogoutClick = e => {
         e.preventDefault();
         firebase
@@ -23,29 +16,18 @@ class Nav extends Component {
             });
     };
 
-    profile = () => {
-        console.log(firebase.auth().currentUser.email);
-        var user = firebase.auth().currentUser;
-        var name, email, photoUrl, uid, emailVerified;
-
-        if (user != null) {
-            name = user.displayName;
-            email = user.email;
-            photoUrl = user.photoURL;
-            emailVerified = user.emailVerified;
-            uid = user.uid; // The user's ID, unique to the Firebase project. Do NOT use
-            // this value to authenticate with your backend server, if
-            // you have one. Use User.getToken() instead.
-        }
-        console.log(name);
-        console.log(email);
-        console.log(uid);
+    profile = e => {
+        e.preventDefault();
+        console.log(this.props.auth);
     };
 
     render() {
         return (
             <header>
-                <nav className="navbar navbar-expand-md navbar-dark bg-dark">
+                <nav
+                    className="navbar navbar-expand-md navbar-dark "
+                    style={{ backgroundColor: "rgb(51, 85, 139)" }}
+                >
                     <a className="navbar-brand" href="/#">
                         BALANCEGAME
                     </a>
@@ -64,12 +46,16 @@ class Nav extends Component {
                     <div className="collapse navbar-collapse pl-4" id="navbarTogglerDemo02">
                         <ul className="navbar-nav">
                             <li className="nav-item">
-                                <a className="nav-link" href="/">
+                                <a className="nav-link" onClick={this.profile} href="/#">
                                     모두
                                 </a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="/setting">
+                                <a
+                                    className="nav-link"
+                                    onClick={this.onLogoutClick}
+                                    href="/setting"
+                                >
                                     이미지
                                 </a>
                             </li>
@@ -86,7 +72,7 @@ class Nav extends Component {
                                     작성
                                 </a>
                             </li>
-                            {this.state.user ? (
+                            {this.props.auth.isAuthenticated ? (
                                 <>
                                     <li className="nav-item">
                                         <a className="nav-link" onClick={this.profile}>
