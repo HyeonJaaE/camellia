@@ -8,7 +8,7 @@ import Card from "./Components/Card";
 import Menu from "./Components/Menu";
 import firebase from "./firebase";
 //import reducers from './reducers';
-
+//검색 기능 만드는 중
 class App extends Component {
     constructor(props) {
         super(props);
@@ -18,9 +18,44 @@ class App extends Component {
             type: "all",
             order: "view",
             getMy: false,
-            search: false
+            search: false,
+            searchTxt: "",
+            limit: 3
         };
     }
+
+    componentDidUpdate() {
+        console.log(this.state.card.length / this.state.limit);
+        if (this.state.search) {
+            while (this.state.card.length === 0) {
+                var ref = this.getRef(this.state.type, this.state.order);
+                this.getContents(ref.limit(this.state.limit));
+                if (!this.state.search) break;
+            }
+        }
+        if (this.state.search && this.state.card.length > 0) {
+            while (this.state.card.length / this.state.limit !== 0) {
+                var ref = this.getRef(this.state.type, this.state.order);
+                this.getContents(ref.limit(this.state.limit));
+                if (!this.state.search) break;
+            }
+        }
+    }
+    search = e => {
+        this.setState(
+            {
+                searchTxt: e,
+                search: true,
+                idx: null,
+                card: [],
+                limit: 1
+            },
+            () => {
+                var ref = this.getRef(this.state.type, this.state.order);
+                this.getContents(ref.limit(this.state.limit));
+            }
+        );
+    };
 
     handleType = e => {
         //console.log(e);
@@ -32,7 +67,7 @@ class App extends Component {
             },
             () => {
                 var ref = this.getRef(this.state.type, this.state.order);
-                this.getContents(ref.limit(3));
+                this.getContents(ref.limit(this.state.limit));
             }
         );
     };
@@ -46,7 +81,7 @@ class App extends Component {
             },
             () => {
                 var ref = this.getRef(this.state.type, this.state.order);
-                this.getContents(ref.limit(3));
+                this.getContents(ref.limit(this.state.limit));
             }
         );
     };
@@ -60,7 +95,7 @@ class App extends Component {
             },
             () => {
                 var ref = this.getRef(this.state.type, this.state.order);
-                this.getContents(ref.limit(3));
+                this.getContents(ref.limit(this.state.limit));
             }
         );
     };
@@ -93,10 +128,6 @@ class App extends Component {
         }
     };
 
-    componentDidUpdate() {
-        //console.log("idx", this.state.type);
-    }
-
     getContents = e => {
         var ref = e;
         if (this.state.getMy) {
@@ -104,7 +135,17 @@ class App extends Component {
         }
         ref.get()
             .then(snapShot => {
+                if (snapShot.empty) {
+                    console.log("empty");
+                    this.setState({
+                        search: false
+                    });
+                }
                 snapShot.forEach(doc => {
+                    var pass = true;
+                    if (this.state.search) {
+                        if (doc.data().title.indexOf(this.state.searchTxt) === -1) pass = false;
+                    }
                     var tmp = (
                         <Card
                             id={doc.id}
@@ -114,10 +155,12 @@ class App extends Component {
                             sub={doc.data().subtitle}
                         />
                     );
-                    this.setState({
-                        card: this.state.card.concat(tmp),
-                        idx: snapShot.docs[snapShot.docs.length - 1]
-                    });
+                    if (pass) {
+                        this.setState({
+                            card: this.state.card.concat(tmp),
+                            idx: snapShot.docs[snapShot.docs.length - 1]
+                        });
+                    }
                 });
             })
             .catch(err => {
@@ -128,13 +171,13 @@ class App extends Component {
     more = () => {
         var order = this.state.order;
         var ref = this.getRef(this.state.type, this.state.order);
-        this.getContents(ref.startAfter(this.state.idx.data()[order]).limit(3));
+        this.getContents(ref.startAfter(this.state.idx.data()[order]).limit(this.state.limit));
     };
 
     componentDidMount() {
         var ref = this.getRef(this.state.type, this.state.order);
-        //this.getContents(ref.where("author.id", "==", "n4@naver.com").limit(3));
-        this.getContents(ref.limit(3));
+        //this.getContents(ref.where("author.id", "==", "n4@naver.com").limit(this.state.limit));
+        this.getContents(ref.limit(this.state.limit));
     }
 
     render() {

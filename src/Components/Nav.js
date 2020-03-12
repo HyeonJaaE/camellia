@@ -5,6 +5,9 @@ import { logoutUser } from "../actions/authActions";
 import firebase from "../firebase";
 
 class Nav extends Component {
+    constructor() {
+        super();
+    }
     onLogoutClick = e => {
         e.preventDefault();
         firebase
@@ -16,6 +19,15 @@ class Nav extends Component {
             });
     };
 
+    btnClick = e => {
+        e.preventDefault();
+        this.props.handleType(e.target.id);
+    };
+
+    onClickMyProfile = e => {
+        e.preventDefault();
+        this.props.getMyContents();
+    };
     profile = e => {
         e.preventDefault();
         console.log(this.props.auth);
@@ -28,7 +40,7 @@ class Nav extends Component {
                     className="navbar navbar-expand-md navbar-dark "
                     style={{ backgroundColor: "rgb(51, 85, 139)" }}
                 >
-                    <a className="navbar-brand" href="/#">
+                    <a className="navbar-brand" href="/">
                         BALANCEGAME
                     </a>
                     <button
@@ -46,22 +58,18 @@ class Nav extends Component {
                     <div className="collapse navbar-collapse pl-4" id="navbarTogglerDemo02">
                         <ul className="navbar-nav">
                             <li className="nav-item">
-                                <a className="nav-link" onClick={this.profile} href="/#">
+                                <a className="nav-link" id="all" onClick={this.btnClick}>
                                     모두
                                 </a>
                             </li>
                             <li className="nav-item">
-                                <a
-                                    className="nav-link"
-                                    onClick={this.onLogoutClick}
-                                    href="/setting"
-                                >
+                                <a className="nav-link" id="img" onClick={this.btnClick}>
                                     이미지
                                 </a>
                             </li>
                             <li className="nav-item">
-                                <a className="nav-link" href="/setting">
-                                    글
+                                <a className="nav-link" id="txt" onClick={this.btnClick}>
+                                    텍스트
                                 </a>
                             </li>
                         </ul>
@@ -75,7 +83,7 @@ class Nav extends Component {
                             {this.props.auth.isAuthenticated ? (
                                 <>
                                     <li className="nav-item">
-                                        <a className="nav-link" onClick={this.profile}>
+                                        <a className="nav-link" onClick={this.onClickMyProfile}>
                                             내 정보
                                         </a>
                                     </li>
