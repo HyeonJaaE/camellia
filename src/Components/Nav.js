@@ -13,23 +13,14 @@ class Nav extends Component {
         firebase
             .auth()
             .signOut()
-            .then()
+            .then(window.location.reload())
             .catch(function(error) {
                 // An error happened.
             });
     };
 
-    btnClick = e => {
-        e.preventDefault();
-        this.props.handleType(e.target.id);
-    };
-
-    onClickMyProfile = e => {
-        e.preventDefault();
-        this.props.getMyContents();
-    };
     profile = e => {
-        e.preventDefault();
+        //e.preventDefault();
         console.log(this.props.auth);
     };
 
@@ -56,23 +47,6 @@ class Nav extends Component {
                     </button>
 
                     <div className="collapse navbar-collapse pl-4" id="navbarTogglerDemo02">
-                        <ul className="navbar-nav">
-                            <li className="nav-item">
-                                <a className="nav-link" id="all" onClick={this.btnClick}>
-                                    모두
-                                </a>
-                            </li>
-                            <li className="nav-item">
-                                <a className="nav-link" id="img" onClick={this.btnClick}>
-                                    이미지
-                                </a>
-                            </li>
-                            <li className="nav-item">
-                                <a className="nav-link" id="txt" onClick={this.btnClick}>
-                                    텍스트
-                                </a>
-                            </li>
-                        </ul>
                         <div className="col-sm mx-auto " />
                         <ul className="navbar-nav">
                             <li className="nav-item">
@@ -83,7 +57,11 @@ class Nav extends Component {
                             {this.props.auth.isAuthenticated ? (
                                 <>
                                     <li className="nav-item">
-                                        <a className="nav-link" onClick={this.onClickMyProfile}>
+                                        <a
+                                            className="nav-link"
+                                            href="/profile"
+                                            onClick={this.profile}
+                                        >
                                             내 정보
                                         </a>
                                     </li>

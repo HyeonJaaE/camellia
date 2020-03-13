@@ -14,16 +14,45 @@ class Vs extends Component {
             data: null,
             comments: null,
             vote: [],
-            check: []
+            check: [],
+            order: "upCount"
         };
     }
 
-    componentDidMount() {
+    onChangeOrder = e => {
+        e.preventDefault();
+        this.setState(
+            {
+                order: e.target.value
+            },
+            this.getComments
+        );
+    };
+
+    commentsListener = () => {
+        const db = firebase.firestore();
+        let doc = db
+            .collection("contents")
+            .doc(this.props.match.params.n)
+            .collection("comments");
+
+        doc.onSnapshot(
+            docSnapshot => {
+                //console.log(docSnapshot);
+                this.getComments();
+            },
+            err => {
+                console.log(`Encountered error: ${err}`);
+            }
+        );
+    };
+
+    getComments = () => {
         const db = firebase.firestore();
         db.collection("contents")
             .doc(this.props.match.params.n)
             .collection("comments")
-            .orderBy("cDate", "desc")
+            .orderBy(this.state.order, "desc")
             .get()
             .then(querySnaphot => {
                 var tmp = [];
@@ -36,7 +65,12 @@ class Vs extends Component {
                     comments: tmp
                 });
             });
+    };
 
+    componentDidMount() {
+        this.commentsListener();
+        this.getComments();
+        const db = firebase.firestore();
         const data = db.collection("contents").doc(this.props.match.params.n);
 
         data.update({
@@ -79,7 +113,9 @@ class Vs extends Component {
                 cBody: this.state.commentToAdd,
                 cReport: [],
                 cUp: [],
-                cDate: firebase.firestore.FieldValue.serverTimestamp()
+                cDate: firebase.firestore.FieldValue.serverTimestamp(),
+                upCount: 0,
+                reportCount: 0
             })
             .then(docRef => {
                 window.location.reload();
@@ -89,8 +125,6 @@ class Vs extends Component {
                 console.log(err);
             });
     };
-
-    getContents = () => {};
 
     toLogin = () => {
         if (window.confirm("로그인 후 이용 가능합니다. 로그인 화면으로 이동하시겠습니까?")) {
@@ -135,6 +169,7 @@ class Vs extends Component {
                 <Nav name="HOME" />
                 <div className="container">
                     {this.state.data && <h3>조회수 : {this.state.data.view}</h3>}
+                    {this.state.data && <h3>작성 : {this.state.data.date.toDate().toString()}</h3>}
                     {this.state.data ? (
                         this.state.data.type === "img" ? (
                             <div className="row">
@@ -154,9 +189,11 @@ class Vs extends Component {
                                     <h3>
                                         투표 수 : {this.state.vote[0]}(
                                         {this.state.vote[0] > 0
-                                            ? (this.state.vote[0] /
-                                                  (this.state.vote[0] + this.state.vote[1])) *
-                                              100
+                                            ? (
+                                                  (this.state.vote[0] /
+                                                      (this.state.vote[0] + this.state.vote[1])) *
+                                                  100
+                                              ).toFixed(1)
                                             : 0}
                                         %)
                                     </h3>
@@ -176,9 +213,11 @@ class Vs extends Component {
                                     <h3>
                                         투표 수 : {this.state.vote[1]}(
                                         {this.state.vote[1] > 0
-                                            ? (this.state.vote[1] /
-                                                  (this.state.vote[0] + this.state.vote[1])) *
-                                              100
+                                            ? (
+                                                  (this.state.vote[1] /
+                                                      (this.state.vote[0] + this.state.vote[1])) *
+                                                  100
+                                              ).toFixed(1)
                                             : 0}
                                         %)
                                     </h3>
@@ -188,8 +227,9 @@ class Vs extends Component {
                             <div className="row">
                                 <div className="col-6">
                                     <div
-                                        className=" text-white text-center"
+                                        className="text-center"
                                         style={{
+                                            textAlign: "center",
                                             height: "300px",
                                             width: "100%",
                                             opacity: 0.75,
@@ -203,17 +243,20 @@ class Vs extends Component {
                                     <h3>
                                         투표 수 : {this.state.vote[0]}(
                                         {this.state.vote[0] > 0
-                                            ? (this.state.vote[0] /
-                                                  (this.state.vote[0] + this.state.vote[1])) *
-                                              100
+                                            ? (
+                                                  (this.state.vote[0] /
+                                                      (this.state.vote[0] + this.state.vote[1])) *
+                                                  100
+                                              ).toFixed(1)
                                             : 0}
                                         %)
                                     </h3>
                                 </div>
                                 <div className="col-6">
                                     <div
-                                        className="text-white text-center"
+                                        className="text-center"
                                         style={{
+                                            textAlign: "center",
                                             height: "300px",
                                             width: "100%",
                                             opacity: 0.75,
@@ -227,9 +270,11 @@ class Vs extends Component {
                                     <h3>
                                         투표 수 : {this.state.vote[1]}(
                                         {this.state.vote[1] > 0
-                                            ? (this.state.vote[1] /
-                                                  (this.state.vote[0] + this.state.vote[1])) *
-                                              100
+                                            ? (
+                                                  (this.state.vote[1] /
+                                                      (this.state.vote[0] + this.state.vote[1])) *
+                                                  100
+                                              ).toFixed(1)
                                             : 0}
                                         %)
                                     </h3>
@@ -248,6 +293,10 @@ class Vs extends Component {
 
                     <div className="row ddd">
                         <div className="col-12">
+                            <select name="정렬" onChange={this.onChangeOrder}>
+                                <option value="upCount">인기순</option>
+                                <option value="cDate">최신순</option>
+                            </select>
                             <div className="col">
                                 {this.state.comments && (
                                     <CommentDiv

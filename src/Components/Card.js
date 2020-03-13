@@ -5,6 +5,15 @@ class Card extends Component {
         super(props);
     }
 
+    componentDidMount() {
+        /*console.log(
+            this.props.date
+                .toDate()
+                .toString()
+                .split(" ")
+        );*/
+    }
+
     render() {
         return (
             <div
@@ -35,6 +44,7 @@ class Card extends Component {
                             <div
                                 className="col-6 p-0"
                                 style={{
+                                    textAlign: "center",
                                     height: "200px",
                                     width: "50%",
                                     backgroundColor: "rgb(247, 202, 201)"
@@ -45,6 +55,7 @@ class Card extends Component {
                             <div
                                 className="col-6 p-0 "
                                 style={{
+                                    textAlign: "center",
                                     height: "200px",
                                     width: "50%",
                                     backgroundColor: "rgb(145, 168, 209)"

@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { connect } from "react-redux";
 
 class Menu extends Component {
     constructor(props) {
@@ -7,14 +9,34 @@ class Menu extends Component {
             search: ""
         };
     }
+    onChangeOrder = e => {
+        e.preventDefault();
+        this.props.handleOrder(e.target.value);
+    };
+
+    onChangeType = e => {
+        //console.log(e.target.value);
+        this.props.handleType(e.target.value);
+    };
+
+    onChangeGetMyContents = e => {
+        switch (e.target.value) {
+            case "mine":
+                this.props.getMyContents(true);
+                break;
+            case "every":
+                this.props.getMyContents(false);
+                break;
+            default:
+                this.props.getMyContents(false);
+                break;
+        }
+    };
+
     handleChange = e => {
         this.setState({
             [e.target.id]: e.target.value
         });
-    };
-    btnClick = e => {
-        e.preventDefault();
-        this.props.handleOrder(e.target.id);
     };
 
     onSearch = e => {
@@ -22,43 +44,42 @@ class Menu extends Component {
 
         this.props.search(this.state.search);
     };
+
     render() {
         return (
             <div className="mt-2">
                 <div className="row">
-                    <div className="col-4 p-0">
-                        <button
-                            className="btn"
-                            id="date"
-                            onClick={this.btnClick}
-                            style={{ fontSize: "13px" }}
+                    <div className="col p-0">
+                        <select
+                            className="form-control"
+                            style={{ display: "inline", width: "auto" }}
+                            name="정렬"
+                            onChange={this.onChangeOrder}
                         >
-                            최신순
-                        </button>
-                        <button
-                            className="btn"
-                            id="view"
-                            onClick={this.btnClick}
-                            style={{ fontSize: "13px" }}
+                            <option value="view">인기순</option>
+                            <option value="date">최신순</option>
+                        </select>
+                        <select
+                            className="form-control"
+                            style={{ display: "inline", width: "auto" }}
+                            name="타입"
+                            onChange={this.onChangeType}
                         >
-                            인기순
-                        </button>
-                    </div>
-                    <div className="col-4 p-0" />
-                    <div className="col-4 p-0">
-                        <form
-                            className="form-inline d-flex justify-content-center md-form form-sm mt-0"
-                            onSubmit={this.onSearch}
-                        >
-                            <input
-                                className="form-control form-control-sm ml-3 w-75"
-                                type="text"
-                                id="search"
-                                onChange={this.handleChange}
-                                placeholder="Search"
-                                aria-label="Search"
-                            />
-                        </form>
+                            <option value="all">모두</option>
+                            <option value="img">이미지</option>
+                            <option value="txt">텍스트</option>
+                        </select>
+                        {this.props.auth.isAuthenticated && (
+                            <select
+                                className="form-control"
+                                style={{ display: "inline", width: "auto" }}
+                                name="글 종류"
+                                onChange={this.onChangeGetMyContents}
+                            >
+                                <option value="every">모든 글</option>
+                                <option value="mine">내가 작성한 글</option>
+                            </select>
+                        )}
                     </div>
                 </div>
             </div>
@@ -66,4 +87,12 @@ class Menu extends Component {
     }
 }
 
-export default Menu;
+Menu.propTypes = {
+    auth: PropTypes.object.isRequired
+};
+
+const mapStateToProps = state => ({
+    auth: state.auth
+});
+
+export default connect(mapStateToProps)(Menu);

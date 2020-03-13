@@ -6,9 +6,6 @@ import { connect } from "react-redux";
 class Comment extends Component {
     constructor() {
         super();
-        this.state = {
-            data: []
-        };
     }
 
     up = () => {
@@ -18,20 +15,26 @@ class Comment extends Component {
             .doc(this.props.n)
             .collection("comments")
             .doc(this.props.docId);
-
-        ref.get().then(snapShot => {
-            if (!snapShot.data().cUp.find(e => e === this.props.auth.user.email)) {
-                if (window.confirm("추천하시겠습니까?")) {
-                    ref.update({
-                        cUp: firebase.firestore.FieldValue.arrayUnion(this.props.auth.user.email)
-                    }).then(() => {
-                        window.alert("추천 완료");
-                    });
+        if (this.props.auth.isAuthenticated) {
+            ref.get().then(snapShot => {
+                if (!snapShot.data().cUp.find(e => e === this.props.auth.user.email)) {
+                    if (window.confirm("추천하시겠습니까?")) {
+                        ref.update({
+                            cUp: firebase.firestore.FieldValue.arrayUnion(
+                                this.props.auth.user.email
+                            ),
+                            upCount: firebase.firestore.FieldValue.increment(1)
+                        }).then(() => {
+                            window.alert("추천 완료");
+                        });
+                    }
+                } else {
+                    window.alert("이미 추천하셨습니다");
                 }
-            } else {
-                window.alert("이미 추천하셨습니다");
-            }
-        });
+            });
+        } else {
+            window.alert("로그인 후 이용 가능합니다");
+        }
     };
 
     report = () => {
@@ -42,21 +45,26 @@ class Comment extends Component {
             .collection("comments")
             .doc(this.props.docId);
 
-        ref.get().then(snapShot => {
-            if (!snapShot.data().cUp.find(e => e === this.props.auth.user.email)) {
-                if (window.confirm("신고하시겠습니까?")) {
-                    ref.update({
-                        cReport: firebase.firestore.FieldValue.arrayUnion(
-                            this.props.auth.user.email
-                        )
-                    }).then(() => {
-                        window.alert("신고 완료");
-                    });
+        if (this.props.auth.isAuthenticated) {
+            ref.get().then(snapShot => {
+                if (!snapShot.data().cReport.find(e => e === this.props.auth.user.email)) {
+                    if (window.confirm("신고하시겠습니까?")) {
+                        ref.update({
+                            cReport: firebase.firestore.FieldValue.arrayUnion(
+                                this.props.auth.user.email
+                            ),
+                            reportCount: firebase.firestore.FieldValue.increment(1)
+                        }).then(() => {
+                            window.alert("신고 완료");
+                        });
+                    }
+                } else {
+                    window.alert("이미 신고하셨습니다.");
                 }
-            } else {
-                window.alert("이미 신고하셨습니다.");
-            }
-        });
+            });
+        } else {
+            window.alert("로그인 후 이용 가능합니다");
+        }
     };
 
     del = () => {
@@ -89,7 +97,7 @@ class Comment extends Component {
                 </div>
                 <div className="row justify-content-end">
                     추천수
-                    {this.props.data.cUp.length}
+                    {this.props.data.upCount && this.props.data.upCount}
                     <input type="button" value="추천" onClick={this.up}></input>
                     <input type="button" value="신고" onClick={this.report}></input>
                     {this.props.data.cAuthor.cid === this.props.auth.user.email && (

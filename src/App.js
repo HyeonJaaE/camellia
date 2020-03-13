@@ -18,6 +18,7 @@ class App extends Component {
             type: "all",
             order: "view",
             getMy: false,
+            limit: 3,
             search: false
         };
     }
@@ -32,7 +33,7 @@ class App extends Component {
             },
             () => {
                 var ref = this.getRef(this.state.type, this.state.order);
-                this.getContents(ref.limit(3));
+                this.getContents(ref.limit(this.state.limit));
             }
         );
     };
@@ -46,23 +47,27 @@ class App extends Component {
             },
             () => {
                 var ref = this.getRef(this.state.type, this.state.order);
-                this.getContents(ref.limit(3));
+                this.getContents(ref.limit(this.state.limit));
             }
         );
     };
 
-    getMyContents = () => {
-        this.setState(
-            {
-                getMy: true,
-                idx: null,
-                card: []
-            },
-            () => {
-                var ref = this.getRef(this.state.type, this.state.order);
-                this.getContents(ref.limit(3));
-            }
-        );
+    handleGetMyContents = e => {
+        if (this.props.auth.isAuthenticated) {
+            this.setState(
+                {
+                    getMy: e,
+                    idx: null,
+                    card: []
+                },
+                () => {
+                    var ref = this.getRef(this.state.type, this.state.order);
+                    this.getContents(ref.limit(this.state.limit));
+                }
+            );
+        } else {
+            window.alert("로그인 후 사용 가능");
+        }
     };
 
     getRef = (t, o) => {
@@ -102,6 +107,7 @@ class App extends Component {
         if (this.state.getMy) {
             ref = e.where("author.id", "==", this.props.auth.user.email);
         }
+
         ref.get()
             .then(snapShot => {
                 snapShot.forEach(doc => {
@@ -112,6 +118,7 @@ class App extends Component {
                             title={doc.data().title}
                             url={doc.data().url ? doc.data().url : null}
                             sub={doc.data().subtitle}
+                            date={doc.data().date}
                         />
                     );
                     this.setState({
@@ -128,23 +135,38 @@ class App extends Component {
     more = () => {
         var order = this.state.order;
         var ref = this.getRef(this.state.type, this.state.order);
-        this.getContents(ref.startAfter(this.state.idx.data()[order]).limit(3));
+        this.getContents(ref.startAfter(this.state.idx.data()[order]).limit(this.state.limit));
     };
 
     componentDidMount() {
         var ref = this.getRef(this.state.type, this.state.order);
-        //this.getContents(ref.where("author.id", "==", "n4@naver.com").limit(3));
-        this.getContents(ref.limit(3));
+        //this.getContents(ref.where("author.id", "==", "n4@naver.com").limit(this.state.limit));
+        this.getContents(ref.limit(this.state.limit));
     }
 
     render() {
         return (
-            <div>
-                <Nav handleType={this.handleType} getMyContents={this.getMyContents} />
+            <div style={{ height: "100%" }}>
+                <Nav />
                 <div className="container">
-                    <Menu handleOrder={this.handleOrder} search={this.search} />
+                    <Menu
+                        handleType={this.handleType}
+                        getMyContents={this.handleGetMyContents}
+                        handleOrder={this.handleOrder}
+                        search={this.search}
+                    />
                     <div>{this.state.card}</div>
-                    {this.state.idx && <button onClick={this.more}>더 보기</button>}
+                    {this.state.idx && (
+                        <div className="row pb-3 justify-content-center">
+                            <button
+                                className="btn text-white"
+                                style={{ backgroundColor: "rgb(51, 85, 139)" }}
+                                onClick={this.more}
+                            >
+                                더 보기
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         );

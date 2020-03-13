@@ -25,11 +25,16 @@ class Setting extends Component {
     }
 
     componentDidUpdate() {
+        //파일 업로드 => url1, url2 != null
         if (this.state.url1 !== null && this.state.url2 !== null) {
             var _data = this.state.data;
             _data.url = [this.state.url1, this.state.url2];
             this.docSet(_data);
         }
+        /*
+        if (this.state.file1) {
+            if (this.state.file1.size > 1024 * 1024 * 2) window.alert("용량 초과");
+        }*/
     }
 
     handleChange = e => {
@@ -46,6 +51,8 @@ class Setting extends Component {
 
     onSubmit = e => {
         e.preventDefault();
+        //타입이 img 일때, txt 일때 따로 처리
+        //img일때는 fileupload 함수 호출하여 url값을 반환 받는다
         var _data = {
             author: {
                 id: this.props.auth.user.email,
@@ -61,6 +68,15 @@ class Setting extends Component {
         };
 
         if (this.state.option === "img") {
+            if (this.state.file1.size > 1024 * 1024 * 2) {
+                window.alert("1번 파일의 용량이 2MB를 초과합니다.");
+                return;
+            }
+            if (this.state.file2.size > 1024 * 1024 * 2) {
+                window.alert("2번 파일의 용량이 2MB를 초과합니다.");
+                return;
+            }
+
             this.setState({
                 data: _data
             });
@@ -190,7 +206,9 @@ class Setting extends Component {
                                 </div>
                             </div>
                             <div className="row my-4">
-                                <div className="col-12">글 설명 작성</div>
+                                <div className="col-12">
+                                    글 설명 작성, 첨부 파일의 용량은 2MB를 넘을 수 없습니다.
+                                </div>
                             </div>
                             <div className="row mt-4" style={{}}>
                                 <div className="col-6 text-center">

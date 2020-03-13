@@ -13,6 +13,7 @@ import Setting from "./Components/Setting";
 import Vs from "./Components/Vs";
 import Login from "./Components/Login";
 import Signup from "./Components/Signup";
+import Profile from "./Components/Profile";
 
 import * as serviceWorker from "./serviceWorker";
 
@@ -30,6 +31,7 @@ firebase.auth().onAuthStateChanged(user => {
                 <Route path="/login" component={Login} />
                 <Route path="/signup" component={Signup} />
                 <Route path="/Setting" component={Setting} />
+                <Route path="/Profile" component={Profile} />
             </Router>
         </Provider>,
         document.getElementById("root")
