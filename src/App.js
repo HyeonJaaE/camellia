@@ -18,7 +18,7 @@ class App extends Component {
             type: "all",
             order: "view",
             getMy: false,
-            limit: 3,
+            limit: 10,
             search: false
         };
     }
@@ -119,6 +119,7 @@ class App extends Component {
                             url={doc.data().url ? doc.data().url : null}
                             sub={doc.data().subtitle}
                             date={doc.data().date}
+                            view={doc.data().view}
                         />
                     );
                     this.setState({
@@ -146,27 +147,32 @@ class App extends Component {
 
     render() {
         return (
-            <div style={{ height: "100%" }}>
+            <div style={{ backgroundColor: "rgb(242, 244, 247)" }}>
                 <Nav />
-                <div className="container">
-                    <Menu
-                        handleType={this.handleType}
-                        getMyContents={this.handleGetMyContents}
-                        handleOrder={this.handleOrder}
-                        search={this.search}
-                    />
-                    <div>{this.state.card}</div>
-                    {this.state.idx && (
-                        <div className="row pb-3 justify-content-center">
-                            <button
-                                className="btn text-white"
-                                style={{ backgroundColor: "rgb(51, 85, 139)" }}
-                                onClick={this.more}
-                            >
-                                더 보기
-                            </button>
-                        </div>
-                    )}
+                <div className="container-fluid ">
+                    <div className="col-sm-12 col-md-10 col-lg-7 mx-auto ">
+                        <Menu
+                            handleType={this.handleType}
+                            getMyContents={this.handleGetMyContents}
+                            handleOrder={this.handleOrder}
+                            search={this.search}
+                        />
+                        <div>{this.state.card}</div>
+                        {this.state.idx && (
+                            <div className="row pb-3 justify-content-center">
+                                <button
+                                    className="btn text-white"
+                                    style={{ backgroundColor: "rgb(51, 85, 139)" }}
+                                    onClick={this.more}
+                                >
+                                    더 보기
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className="py-4 bg-dark text-center text-white-50">
+                    presentlee914@gmail.com
                 </div>
             </div>
         );

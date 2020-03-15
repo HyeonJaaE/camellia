@@ -17,66 +17,83 @@ class Card extends Component {
     render() {
         return (
             <div
-                className="card border-0 my-3"
+                className="card border-1 my-3 shadow-sm"
                 onClick={() => {
                     window.location = "/vs/" + this.props.id;
                 }}
                 style={{ cursor: "pointer" }}
             >
-                <div className="col p-0">
-                    {this.props.url ? (
-                        <>
-                            <img
-                                className="card-img-top"
-                                src={this.props.url[0]}
-                                style={{ height: "300px", width: "50%" }}
-                                alt="agjrgioajregioaejrgio"
-                            ></img>
-                            <img
-                                className="card-img-top"
-                                src={this.props.url[1]}
-                                style={{ height: "300px", width: "50%" }}
-                                alt=""
-                            ></img>
-                        </>
-                    ) : (
-                        <div className="row m-0 pt-4">
-                            <div
-                                className="col-6 p-0"
-                                style={{
-                                    textAlign: "center",
-                                    height: "200px",
-                                    width: "50%",
-                                    backgroundColor: "rgb(247, 202, 201)"
-                                }}
-                            >
-                                <h3>{this.props.sub[0]}</h3>
+                {this.props.url ? (
+                    <div className="col px-0 pt-4 ">
+                        <div
+                            className="d-flex"
+                            style={{
+                                borderBottomColor: "rgb(223,223,223)",
+                                borderBottomStyle: "solid",
+                                borderBottomWidth: "1px"
+                            }}
+                        >
+                            <div className="flex-md-fill flex-sm-fill">
+                                <p className="lead pb-2 m-0 text-center">{this.props.title}</p>
                             </div>
+                            <div>
+                                <p className="text-muted my-auto" style={{ fontSize: "10px" }}>
+                                    {this.props.view}
+                                </p>
+                            </div>
+                        </div>
+                        <img
+                            className=""
+                            src={this.props.url[0]}
+                            style={{
+                                height: "174px",
+                                width: "50%"
+                            }}
+                            alt="agjrgioajregioaejrgio"
+                        ></img>
+                        <img
+                            className=""
+                            src={this.props.url[1]}
+                            style={{ height: "174px", width: "50%" }}
+                            alt=""
+                        ></img>
+                    </div>
+                ) : (
+                    <div className="col p-4 ">
+                        <div
+                            className="d-flex"
+                            style={{
+                                borderBottomColor: "rgb(223,223,223)",
+                                borderBottomStyle: "solid",
+                                borderBottomWidth: "1px"
+                            }}
+                        >
+                            <div className="flex-md-fill flex-sm-fill">
+                                <p className="lead pb-2 m-0 text-center">{this.props.title}</p>
+                            </div>
+                            <div>
+                                <p className="text-muted my-auto" style={{ fontSize: "10px" }}>
+                                    {this.props.view}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="row m-0" style={{ height: "150px" }}>
                             <div
-                                className="col-6 p-0 "
+                                className="d-flex col-6 p-0 justify-content-center align-items-center"
                                 style={{
-                                    textAlign: "center",
-                                    height: "200px",
-                                    width: "50%",
-                                    backgroundColor: "rgb(145, 168, 209)"
+                                    borderRightStyle: "solid",
+                                    borderWidth: "1px",
+                                    borderColor: "rgb(223,223,223)"
                                 }}
                             >
+                                <h3 className="align-middle">{this.props.sub[0]}</h3>
+                            </div>
+                            <div className="d-flex col-6 p-0 justify-content-center align-items-center">
                                 <h3>{this.props.sub[1]}</h3>
                             </div>
                         </div>
-                    )}
-                </div>
-                <div className="card-img-overlay p-0">
-                    <h5
-                        className="card-title text-center"
-                        style={{
-                            color: "white",
-                            backgroundColor: "rgb(51, 85, 139)"
-                        }}
-                    >
-                        {this.props.title}
-                    </h5>
-                </div>
+                    </div>
+                )}
             </div>
         );
     }
