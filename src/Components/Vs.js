@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import Nav from "./Nav";
-
+import { fn_dateTimeToFormatted } from "./Function";
 import CommentDiv from "./CommentDiv";
-import PropTypes from "prop-types";
+import PropTypes, { nominalTypeHack } from "prop-types";
 import firebase from "../firebase";
 import { connect } from "react-redux";
 
@@ -23,6 +23,7 @@ class Vs extends Component {
         e.preventDefault();
         this.setState(
             {
+                comments: null,
                 order: e.target.value
             },
             this.getComments
@@ -162,122 +163,210 @@ class Vs extends Component {
             }
         }
     };
-
+    componentDidUpdate() {
+        console.log(this.state.comments);
+    }
     render() {
+        var imgDivStyle = {
+            height: "300px",
+            width: "100%",
+            opacity: 0.75,
+            cursor: "pointer"
+        };
+
+        var btnStyleActive = {
+            outline: "none",
+            background: "none!important",
+            border: "none",
+            padding: "0!important",
+            backgroundColor: "white",
+            cursor: "pointer"
+        };
+
+        var btnStyleInactive = {
+            outline: "none",
+            background: "none!important",
+            border: "none",
+            padding: "0!important",
+            backgroundColor: "white",
+            color: "gray",
+            cursor: "pointer"
+        };
+
         return (
-            <div>
+            <div
+                className="d-flex flex-column h-100"
+                style={{ backgroundColor: "rgb(242, 244, 247)" }}
+            >
                 <Nav name="HOME" />
-                <div className="container">
-                    {this.state.data && <h3>조회수 : {this.state.data.view}</h3>}
-                    {this.state.data && <h3>작성 : {this.state.data.date.toDate().toString()}</h3>}
+                <div
+                    className="d-flex flex-column col-lg-8 col-md-8 col-sm-8 align-self-center shadow my-4 p-0"
+                    style={{ minHeight: "100vh", backgroundColor: "white" }}
+                >
                     {this.state.data ? (
                         this.state.data.type === "img" ? (
-                            <div className="row">
-                                <div className="col-6">
+                            <div className="d-flex justify-content-center">
+                                <div
+                                    className="d-flex flex-column justify-content-center p-0"
+                                    style={imgDivStyle}
+                                    id="voteA"
+                                    onClick={() => this.vote("voteA")}
+                                >
                                     <img
-                                        className=""
                                         src={this.state.data.url[0]}
                                         style={{
                                             height: "300px",
-                                            width: "100%",
-                                            opacity: 0.75
+                                            width: "100%"
                                         }}
-                                        id="voteImgA"
-                                        alt={this.state.vote[0]}
-                                        onClick={() => this.vote("voteA")}
+                                        alt={this.state.vote[1]}
                                     />
-                                    <h3>
-                                        투표 수 : {this.state.vote[0]}(
-                                        {this.state.vote[0] > 0
-                                            ? (
-                                                  (this.state.vote[0] /
-                                                      (this.state.vote[0] + this.state.vote[1])) *
-                                                  100
-                                              ).toFixed(1)
-                                            : 0}
-                                        %)
-                                    </h3>
+                                    <div
+                                        className="align-self-center text-center"
+                                        style={{ position: "absolute", zIndex: "123" }}
+                                    >
+                                        <h3>{this.state.data.subtitle[0]}</h3>
+                                        {(this.state.check[0] || this.state.check[1]) && (
+                                            <>
+                                                <h1 className="mb-0">
+                                                    {this.state.vote[0] > 0
+                                                        ? (
+                                                              (this.state.vote[0] /
+                                                                  (this.state.vote[0] +
+                                                                      this.state.vote[1])) *
+                                                              100
+                                                          ).toFixed(1)
+                                                        : 0}
+                                                    %
+                                                </h1>
+                                                {this.state.vote[0]}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="col-6">
+                                <div
+                                    className="d-flex align-self-center justify-content-center bg-dark text-white rounded-circle shadow-lg"
+                                    style={{
+                                        position: "absolute",
+                                        zIndex: "9999",
+                                        width: "50px",
+                                        height: "50px"
+                                    }}
+                                >
+                                    <div className="align-self-center">
+                                        <h4 className="m-0">VS</h4>
+                                    </div>
+                                </div>
+
+                                <div
+                                    className="d-flex flex-column justify-content-center p-0"
+                                    style={imgDivStyle}
+                                    id="voteB"
+                                    onClick={() => this.vote("voteB")}
+                                >
                                     <img
-                                        className=""
                                         src={this.state.data.url[1]}
                                         style={{
                                             height: "300px",
-                                            width: "100%",
-                                            opacity: 0.75
+                                            width: "100%"
                                         }}
                                         alt={this.state.vote[1]}
-                                        onClick={() => this.vote("voteB")}
                                     />
-                                    <h3>
-                                        투표 수 : {this.state.vote[1]}(
-                                        {this.state.vote[1] > 0
-                                            ? (
-                                                  (this.state.vote[1] /
-                                                      (this.state.vote[0] + this.state.vote[1])) *
-                                                  100
-                                              ).toFixed(1)
-                                            : 0}
-                                        %)
-                                    </h3>
+                                    <div
+                                        className="align-self-center text-center"
+                                        style={{ position: "absolute", zIndex: "123" }}
+                                    >
+                                        <h3>{this.state.data.subtitle[1]}</h3>
+                                        {(this.state.check[0] || this.state.check[1]) && (
+                                            <>
+                                                <h1 className="mb-0">
+                                                    {this.state.vote[1] > 0
+                                                        ? (
+                                                              (this.state.vote[1] /
+                                                                  (this.state.vote[0] +
+                                                                      this.state.vote[1])) *
+                                                              100
+                                                          ).toFixed(1)
+                                                        : 0}
+                                                    %
+                                                </h1>
+                                                {this.state.vote[1]}
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         ) : (
-                            <div className="row">
-                                <div className="col-6">
-                                    <div
-                                        className="text-center"
-                                        style={{
-                                            textAlign: "center",
-                                            height: "300px",
-                                            width: "100%",
-                                            opacity: 0.75,
-                                            backgroundColor: "rgb(247, 202, 201)"
-                                        }}
-                                        id="voteA"
-                                        onClick={() => this.vote("voteA")}
-                                    >
-                                        <h3>{this.state.data.subtitle[0]}</h3>
-                                    </div>
-                                    <h3>
-                                        투표 수 : {this.state.vote[0]}(
-                                        {this.state.vote[0] > 0
-                                            ? (
-                                                  (this.state.vote[0] /
-                                                      (this.state.vote[0] + this.state.vote[1])) *
-                                                  100
-                                              ).toFixed(1)
-                                            : 0}
-                                        %)
-                                    </h3>
+                            <div className="d-flex justify-content-center">
+                                <div
+                                    className="d-flex flex-column justify-content-center p-0 text-center"
+                                    style={{
+                                        height: "300px",
+                                        width: "100%",
+                                        opacity: 0.75,
+                                        backgroundColor: "rgb(247, 202, 201)"
+                                    }}
+                                    id="voteA"
+                                    onClick={() => this.vote("voteA")}
+                                >
+                                    <h3>{this.state.data.subtitle[0]}</h3>
+                                    {(this.state.check[0] || this.state.check[1]) && (
+                                        <>
+                                            <h1 className="mb-0">
+                                                {this.state.vote[0] > 0
+                                                    ? (
+                                                          (this.state.vote[0] /
+                                                              (this.state.vote[0] +
+                                                                  this.state.vote[1])) *
+                                                          100
+                                                      ).toFixed(1)
+                                                    : 0}
+                                                %
+                                            </h1>
+                                            {this.state.vote[0]}
+                                        </>
+                                    )}
                                 </div>
-                                <div className="col-6">
-                                    <div
-                                        className="text-center"
-                                        style={{
-                                            textAlign: "center",
-                                            height: "300px",
-                                            width: "100%",
-                                            opacity: 0.75,
-                                            backgroundColor: "rgb(145, 168, 209)"
-                                        }}
-                                        id="voteB"
-                                        onClick={() => this.vote("voteB")}
-                                    >
-                                        <h3>{this.state.data.subtitle[1]}</h3>
+                                <div
+                                    className="d-flex align-self-center justify-content-center bg-dark text-white rounded-circle shadow-lg"
+                                    style={{
+                                        position: "absolute",
+                                        zIndex: "9999",
+                                        width: "50px",
+                                        height: "50px"
+                                    }}
+                                >
+                                    <div className="align-self-center">
+                                        <h4 className="m-0">VS</h4>
                                     </div>
-                                    <h3>
-                                        투표 수 : {this.state.vote[1]}(
-                                        {this.state.vote[1] > 0
-                                            ? (
-                                                  (this.state.vote[1] /
-                                                      (this.state.vote[0] + this.state.vote[1])) *
-                                                  100
-                                              ).toFixed(1)
-                                            : 0}
-                                        %)
-                                    </h3>
+                                </div>
+                                <div
+                                    className="d-flex flex-column justify-content-center p-0 text-center"
+                                    style={{
+                                        height: "300px",
+                                        width: "100%",
+                                        opacity: 0.75,
+                                        backgroundColor: "rgb(145, 168, 209)"
+                                    }}
+                                    id="voteB"
+                                    onClick={() => this.vote("voteB")}
+                                >
+                                    <h3>{this.state.data.subtitle[1]}</h3>
+                                    {(this.state.check[0] || this.state.check[1]) && (
+                                        <>
+                                            <h1 className="mb-0">
+                                                {this.state.vote[1] > 0
+                                                    ? (
+                                                          (this.state.vote[1] /
+                                                              (this.state.vote[0] +
+                                                                  this.state.vote[1])) *
+                                                          100
+                                                      ).toFixed(1)
+                                                    : 0}
+                                                %
+                                            </h1>
+                                            {this.state.vote[1]}
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         )
@@ -291,59 +380,122 @@ class Vs extends Component {
                         </div>
                     )}
 
-                    <div className="row ddd">
-                        <div className="col-12">
-                            <select name="정렬" onChange={this.onChangeOrder}>
-                                <option value="upCount">인기순</option>
-                                <option value="cDate">최신순</option>
-                            </select>
-                            <div className="col">
-                                {this.state.comments && (
-                                    <CommentDiv
-                                        n={this.props.match.params.n}
-                                        data={this.state.comments}
-                                    />
-                                )}
-                            </div>
+                    <blockquote
+                        className="blockquote p-3 m-0"
+                        style={{
+                            borderBottomColor: "rgb(223,223,223)",
+                            borderBottomStyle: "solid",
+                            borderBottomWidth: "1px"
+                        }}
+                    >
+                        <p className="mb-0">{this.state.data && this.state.data.title}</p>
+                        <footer className="blockquote-footer">
+                            by&nbsp;
+                            {this.state.data && this.state.data.author.name}&nbsp;&nbsp;
+                            <cite title="Source Title">
+                                {this.state.data &&
+                                    fn_dateTimeToFormatted(this.state.data.date.toDate())}
+                            </cite>
+                        </footer>
+                    </blockquote>
+
+                    <div
+                        className="d-flex px-3 py-2 align-items-center"
+                        style={{
+                            borderBottomColor: "rgb(223,223,223)",
+                            borderBottomStyle: "solid",
+                            borderBottomWidth: "1px"
+                        }}
+                    >
+                        <div className="mr-2">
+                            <p className="mb-0">댓글</p>
                         </div>
-                        <div className="col-12">
-                            <div className="col">
-                                <form onSubmit={this.onSubmit}>
-                                    {this.props.auth.isAuthenticated ? (
-                                        <div className="input-group">
-                                            <input
-                                                className="form-control my-input"
-                                                type="text"
-                                                id="commentToAdd"
-                                                onChange={this.handleChange}
-                                            />
-                                            <input
-                                                className="form-control my-input"
-                                                type="submit"
-                                                value="댓글달기"
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div className="input-group">
-                                            <input
-                                                className="form-control my-input"
-                                                type="button"
-                                                id="commentToAdd"
-                                                value="로그인 후 댓글 작성 가능"
-                                                style={{ cursor: "pointer", width: "500px" }}
-                                                onClick={this.toLogin}
-                                            />
-                                            <input
-                                                className="form-control my-input"
-                                                type="submit"
-                                                value="댓글달기"
-                                                disabled
-                                            />
-                                        </div>
-                                    )}
-                                </form>
+                        <div className="flex-fill">n 개</div>
+                        {this.state.order == "upCount" ? (
+                            <div className="">
+                                <button
+                                    style={btnStyleActive}
+                                    value="upCount"
+                                    onClick={this.onChangeOrder}
+                                >
+                                    추천순
+                                </button>
+                                <button
+                                    style={btnStyleInactive}
+                                    value="cDate"
+                                    onClick={this.onChangeOrder}
+                                >
+                                    최신순
+                                </button>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="btn-group btn-group-sm">
+                                <button
+                                    style={btnStyleInactive}
+                                    value="upCount"
+                                    onClick={this.onChangeOrder}
+                                >
+                                    추천순
+                                </button>
+                                <button
+                                    style={btnStyleActive}
+                                    value="cDate"
+                                    onClick={this.onChangeOrder}
+                                >
+                                    최신순
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {this.state.comments && (
+                        <CommentDiv n={this.props.match.params.n} data={this.state.comments} />
+                    )}
+
+                    <div className="col-12 my-3">
+                        <form onSubmit={this.onSubmit}>
+                            {this.props.auth.isAuthenticated ? (
+                                <div className="d-flex">
+                                    <div className="w-100">
+                                        <input
+                                            className="w-100 form-control my-input"
+                                            type="text"
+                                            id="commentToAdd"
+                                            placeholder="댓글 달기"
+                                            onChange={this.handleChange}
+                                        />
+                                    </div>
+                                    <div>
+                                        <input
+                                            className="form-control my-input"
+                                            type="submit"
+                                            value="댓글 등록"
+                                        />
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="d-flex">
+                                    <div className="w-100">
+                                        <input
+                                            className="w-100 form-control my-input"
+                                            type="button"
+                                            id="commentToAdd"
+                                            value="로그인 후 댓글 작성 가능"
+                                            style={{ cursor: "pointer", width: "500px" }}
+                                            onClick={this.toLogin}
+                                        />
+                                    </div>
+                                    <div>
+                                        <input
+                                            className="form-control my-input"
+                                            type="submit"
+                                            value="댓글 등록"
+                                            disabled
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </form>
                     </div>
                 </div>
             </div>

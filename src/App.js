@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { logoutUser } from "./actions/authActions";
+import axios from "axios";
 
 import Nav from "./Components/Nav";
 import Card from "./Components/Card";
@@ -147,9 +148,13 @@ class App extends Component {
 
     render() {
         return (
-            <div style={{ backgroundColor: "rgb(242, 244, 247)" }}>
+            <div
+                className="d-flex flex-column h-100"
+                style={{ backgroundColor: "rgb(242, 244, 247)" }}
+            >
                 <Nav />
-                <div className="container-fluid ">
+
+                <div className="container-fluid" style={{ minHeight: "100vh" }}>
                     <div className="col-sm-12 col-md-10 col-lg-7 mx-auto ">
                         <Menu
                             handleType={this.handleType}
@@ -171,7 +176,8 @@ class App extends Component {
                         )}
                     </div>
                 </div>
-                <div className="py-4 bg-dark text-center text-white-50">
+
+                <div className="align-self-end mt-auto col-12 mt-auto py-4 bg-dark text-center text-white-50">
                     presentlee914@gmail.com
                 </div>
             </div>
