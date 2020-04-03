@@ -21,7 +21,7 @@ class Nav extends Component {
 
     profile = e => {
         //e.preventDefault();
-        console.log(this.props.auth);
+        //console.log(this.props.auth);
     };
 
     render() {

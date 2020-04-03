@@ -9,6 +9,7 @@ class Profile extends Component {
         super();
         this.state = {
             password: "",
+            changeDisplayName: "",
             changePassword: ""
         };
     }
@@ -46,14 +47,15 @@ class Profile extends Component {
                         // User deleted.
                     })
                     .catch(err => {
-                        console.log(err);
+                        //console.log(err);
                         // An error happened.
                     });
             })
             .catch(err => {
-                console.log(err);
+                //console.log(err);
             });
     };
+
     submit = e => {
         e.preventDefault();
         var user = firebase.auth().currentUser;
@@ -66,7 +68,6 @@ class Profile extends Component {
 
         user.reauthenticateWithCredential(credential)
             .then(() => {
-                console.log(this.state.changePassword);
                 user.updatePassword(this.state.changePassword)
                     .then(() => {
                         window.alert("변경 완료");
@@ -74,44 +75,62 @@ class Profile extends Component {
                         // Update successful.
                     })
                     .catch(err => {
-                        console.log(err);
+                        window.alert(err);
                     });
             })
             .catch(err => {
-                console.log(err);
+                window.alert(err);
             });
     };
     render() {
         return (
-            <div>
+            <div
+                className="d-flex flex-column h-100"
+                style={{ backgroundColor: "rgb(242, 244, 247)" }}
+            >
                 <Nav />
-                <div className="container">
-                    <div className="row h-400">
-                        <form className="form" onSubmit={this.submit}>
-                            <label>닉네임 변경</label>
+                <div className="container-fluid mt-4" style={{ minHeight: "100vh" }}>
+                    <div className="col-12 col-sm-8 col-md-6 col-lg-5 mx-auto p-0">
+                        <form className="form-group" onSubmit={this.submit}>
+                            <label className="mb-0 mt-3">닉네임 변경</label>
                             <input
+                                className="form-control"
                                 type="text"
+                                id="changeDisplayName"
+                                onChange={this.handleChange}
                                 defaultValue={this.props.auth.user.displayName}
+                                readOnly
                             ></input>
-                            <label>아이디</label>
-                            <input type="text" value={this.props.auth.user.email} readOnly></input>
-                            <label>비밀번호 확인</label>
+                            <label className="mb-0 mt-3">아이디</label>
                             <input
+                                className="form-control"
+                                type="text"
+                                value={this.props.auth.user.email}
+                                readOnly
+                            ></input>
+                            <label className="mb-0 mt-3">비밀번호 확인</label>
+                            <input
+                                className="form-control"
                                 type="password"
                                 id="password"
                                 placeholder="현재 비밀번호"
                                 onChange={this.handleChange}
                             ></input>
-                            <label>비밀번호 변경</label>
+                            <label className="mb-0 mt-3">비밀번호 변경</label>
                             <input
+                                className="form-control"
                                 type="password"
                                 id="changePassword"
                                 placeholder="변경할 비밀번호"
                                 onChange={this.handleChange}
                             ></input>
-                            <button>변경</button>
+                            <div className="d-flex justify-content-between pt-4">
+                                <button className="btn btn-outline-secondary">변경</button>
+                                <button className="btn btn-danger" onClick={this.signOut}>
+                                    회원 탈퇴
+                                </button>
+                            </div>
                         </form>
-                        <button onClick={this.signOut}>회원 탈퇴</button>
                     </div>
                 </div>
             </div>

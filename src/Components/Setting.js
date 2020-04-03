@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-
+import { checkFile } from "./Function";
 import { connect } from "react-redux";
 import firebase from "../firebase";
 import Card from "./Card";
@@ -22,6 +22,15 @@ class Setting extends Component {
             data: null,
             errors: {}
         };
+    }
+
+    componentDidMount() {
+        //console.log(this.props.auth);
+        // If logged in and user navigates to Login page, should redirect them to dashboard
+        if (!this.props.auth.isAuthenticated) {
+            window.alert("로그인 후 이용가능합니다");
+            this.props.history.push("/");
+        }
     }
 
     componentDidUpdate() {
@@ -51,6 +60,7 @@ class Setting extends Component {
 
     onSubmit = e => {
         e.preventDefault();
+
         //타입이 img 일때, txt 일때 따로 처리
         //img일때는 fileupload 함수 호출하여 url값을 반환 받는다
         var _data = {
@@ -77,6 +87,16 @@ class Setting extends Component {
                 return;
             }
 
+            if (!checkFile(this.state.file1.type)) {
+                window.alert("파일 확장자명을 확인해주세요.");
+                return;
+            }
+
+            if (!checkFile(this.state.file2.type)) {
+                window.alert("파일 확장자명을 확인해주세요.");
+                return;
+            }
+
             this.setState({
                 data: _data
             });
@@ -88,17 +108,17 @@ class Setting extends Component {
     };
 
     docSet = e => {
-        console.log("e", e);
+        //console.log("e", e);
         var db = firebase.firestore();
         db.collection("contents")
             .doc()
             .set(e)
             .then(docRef => {
-                console.log("Document written with ID: ", docRef);
+                //console.log("Document written with ID: ", docRef);
                 this.props.history.push("/");
             })
             .catch(function(error) {
-                console.error("Error adding document: ", error);
+                //console.error("Error adding document: ", error);
             });
     };
 
@@ -120,13 +140,13 @@ class Setting extends Component {
             function(snapshot) {
                 // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
                 var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                console.log("Upload is " + progress + "% done");
+                //console.log("Upload is " + progress + "% done");
                 switch (snapshot.state) {
                     case firebase.storage.TaskState.PAUSED: // or 'paused'
-                        console.log("Upload is paused");
+                        //console.log("Upload is paused");
                         break;
                     case firebase.storage.TaskState.RUNNING: // or 'running'
-                        console.log("Upload is running");
+                        //console.log("Upload is running");
                         break;
                 }
             },
@@ -150,7 +170,7 @@ class Setting extends Component {
             () => {
                 // Upload completed successfully, now we can get the download URL
                 uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
-                    console.log("File available at", downloadURL);
+                    //console.log("File available at", downloadURL);
                     switch (o) {
                         case 1:
                             this.setState({ url1: downloadURL });
@@ -166,27 +186,18 @@ class Setting extends Component {
 
     render() {
         return (
-            <div>
-                <Nav name="HOME" />
-                <div className="container">
-                    <div className="img_preview" placeholder="이미지 파일을 추가해주세요">
-                        {this.state.imgBase64 ? (
-                            <img
-                                src={this.state.imgBase64}
-                                onClick={this.handleRemove}
-                                style={{ width: "100px", height: "100px" }}
-                                alt=""
-                            ></img>
-                        ) : (
-                            <div></div>
-                        )}
-                    </div>
-                    <div className="col-9 mx-auto mt-4">
+            <div
+                className="d-flex flex-column h-100"
+                style={{ backgroundColor: "rgb(242, 244, 247)" }}
+            >
+                <Nav />
+                <div className="container-fluid mt-4" style={{ minHeight: "100vh" }}>
+                    <div className="col-12 col-sm-10 col-md-9 col-lg-8 mx-auto p-0">
                         <form onSubmit={this.onSubmit}>
-                            <div className="row">
-                                <div className="col-2">
+                            <div className="d-flex">
+                                <div className="p-0">
                                     <select
-                                        className="form-control"
+                                        className="form-control p-0"
                                         id="option"
                                         onChange={this.handleChange}
                                     >
@@ -194,7 +205,7 @@ class Setting extends Component {
                                         <option value="img">이미지</option>
                                     </select>
                                 </div>
-                                <div className="col-10">
+                                <div className="flex-fill">
                                     <input
                                         className="form-control my-input"
                                         type="text"
@@ -205,16 +216,19 @@ class Setting extends Component {
                                     />
                                 </div>
                             </div>
-                            <div className="row my-4">
-                                <div className="col-12">
-                                    글 설명 작성, 첨부 파일의 용량은 2MB를 넘을 수 없습니다.
-                                </div>
+                            <div className="my-4">
+                                글 설명 작성, 첨부 파일의 용량은 2MB를 넘을 수 없습니다.
+                                <br />
+                                <small className="text-info">
+                                    업로드 가능한 확장자명 jpg, jpeg, gif, png
+                                </small>
                             </div>
-                            <div className="row mt-4" style={{}}>
-                                <div className="col-6 text-center">
+
+                            <div className="row mx-auto mt-4">
+                                <div className="col-sm-6 col-12 p-0">
                                     <textarea
                                         className="form-control"
-                                        rows="8"
+                                        rows="10"
                                         id="subtitle1"
                                         onChange={this.handleChange}
                                         required
@@ -228,6 +242,7 @@ class Setting extends Component {
                                             id="file1"
                                             name="file1"
                                             onChange={this.handleChange}
+                                            accept="image/gif, image/jpeg, image/png"
                                             required
                                         />
                                     ) : (
@@ -243,10 +258,10 @@ class Setting extends Component {
                                     )}
                                 </div>
 
-                                <div className="col-6 text-center">
+                                <div className="col-sm-6 col-12 p-0">
                                     <textarea
                                         className="form-control"
-                                        rows="8"
+                                        rows="10"
                                         id="subtitle2"
                                         onChange={this.handleChange}
                                         required
@@ -259,6 +274,7 @@ class Setting extends Component {
                                             className="form-control-file"
                                             id="file2"
                                             name="file2"
+                                            accept="image/gif, image/jpeg, image/png"
                                             onChange={this.handleChange}
                                             required
                                         />
@@ -276,9 +292,7 @@ class Setting extends Component {
                                 </div>
                             </div>
 
-                            <div stlye={{ display: "none" }}></div>
-
-                            <div className="row justify-content-end">
+                            <div className="d-flex justify-content-end">
                                 {this.state.data ? (
                                     <div className="spinner-border text-secondary" role="status">
                                         <span className="sr-only">Loading...</span>

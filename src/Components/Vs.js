@@ -43,7 +43,7 @@ class Vs extends Component {
                 this.getComments();
             },
             err => {
-                console.log(`Encountered error: ${err}`);
+                //console.log(`Encountered error: ${err}`);
             }
         );
     };
@@ -120,10 +120,10 @@ class Vs extends Component {
             })
             .then(docRef => {
                 window.location.reload();
-                console.log(docRef);
+                //console.log(docRef);
             })
             .catch(err => {
-                console.log(err);
+                //console.log(err);
             });
     };
 
@@ -150,11 +150,11 @@ class Vs extends Component {
                             )
                         })
                         .then(docRef => {
-                            console.log(docRef);
+                            //console.log(docRef);
                             window.location.reload();
                         })
                         .catch(err => {
-                            console.log(err);
+                            //console.log(err);
                         });
                 } else {
                 }
@@ -164,13 +164,12 @@ class Vs extends Component {
         }
     };
     componentDidUpdate() {
-        console.log(this.state.comments);
+        //console.log(this.state.comments);
     }
     render() {
         var imgDivStyle = {
             height: "300px",
             width: "100%",
-            opacity: 0.75,
             cursor: "pointer"
         };
 
@@ -200,14 +199,14 @@ class Vs extends Component {
             >
                 <Nav name="HOME" />
                 <div
-                    className="d-flex flex-column col-lg-8 col-md-8 col-sm-8 align-self-center shadow my-4 p-0"
+                    className="d-flex flex-column col-lg-8 col-md-9 col-sm-10 align-self-center shadow my-4 p-0"
                     style={{ minHeight: "100vh", backgroundColor: "white" }}
                 >
                     {this.state.data ? (
                         this.state.data.type === "img" ? (
                             <div className="d-flex justify-content-center">
                                 <div
-                                    className="d-flex flex-column justify-content-center p-0"
+                                    className="d-flex flex-column justify-content-center p-0 vsDiv whenHover1 text-light"
                                     style={imgDivStyle}
                                     id="voteA"
                                     onClick={() => this.vote("voteA")}
@@ -215,8 +214,9 @@ class Vs extends Component {
                                     <img
                                         src={this.state.data.url[0]}
                                         style={{
-                                            height: "300px",
-                                            width: "100%"
+                                            height: "100%",
+                                            width: "100%",
+                                            opacity: 0.85
                                         }}
                                         alt={this.state.vote[1]}
                                     />
@@ -258,7 +258,7 @@ class Vs extends Component {
                                 </div>
 
                                 <div
-                                    className="d-flex flex-column justify-content-center p-0"
+                                    className="d-flex flex-column justify-content-center p-0 vsDiv whenHover1 text-light"
                                     style={imgDivStyle}
                                     id="voteB"
                                     onClick={() => this.vote("voteB")}
@@ -266,8 +266,9 @@ class Vs extends Component {
                                     <img
                                         src={this.state.data.url[1]}
                                         style={{
-                                            height: "300px",
-                                            width: "100%"
+                                            height: "100%",
+                                            width: "100%",
+                                            opacity: 0.85
                                         }}
                                         alt={this.state.vote[1]}
                                     />
@@ -298,17 +299,16 @@ class Vs extends Component {
                         ) : (
                             <div className="d-flex justify-content-center">
                                 <div
-                                    className="d-flex flex-column justify-content-center p-0 text-center"
+                                    className="d-flex flex-column justify-content-center p-0 text-center vsDiv whenHover2 text-dark"
                                     style={{
                                         height: "300px",
                                         width: "100%",
-                                        opacity: 0.75,
                                         backgroundColor: "rgb(247, 202, 201)"
                                     }}
                                     id="voteA"
                                     onClick={() => this.vote("voteA")}
                                 >
-                                    <h3>{this.state.data.subtitle[0]}</h3>
+                                    <h3 className="">{this.state.data.subtitle[0]}</h3>
                                     {(this.state.check[0] || this.state.check[1]) && (
                                         <>
                                             <h1 className="mb-0">
@@ -340,11 +340,10 @@ class Vs extends Component {
                                     </div>
                                 </div>
                                 <div
-                                    className="d-flex flex-column justify-content-center p-0 text-center"
+                                    className="d-flex flex-column justify-content-center p-0 text-center vsDiv whenHover3 text-dark"
                                     style={{
                                         height: "300px",
                                         width: "100%",
-                                        opacity: 0.75,
                                         backgroundColor: "rgb(145, 168, 209)"
                                     }}
                                     id="voteB"
@@ -410,7 +409,7 @@ class Vs extends Component {
                         <div className="mr-2">
                             <p className="mb-0">댓글</p>
                         </div>
-                        <div className="flex-fill">n 개</div>
+                        <div className="flex-fill"></div>
                         {this.state.order == "upCount" ? (
                             <div className="">
                                 <button

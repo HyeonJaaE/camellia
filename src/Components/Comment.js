@@ -30,7 +30,7 @@ class Comment extends Component {
                 this.getReply();
             },
             err => {
-                console.log(`Encountered error: ${err}`);
+                //console.log(`Encountered error: ${err}`);
             }
         );
     };
@@ -211,10 +211,10 @@ class Comment extends Component {
             })
             .then(docRef => {
                 window.location.reload();
-                console.log(docRef);
+                //console.log(docRef);
             })
             .catch(err => {
-                console.log(err);
+                //console.log(err);
             });
     };
 

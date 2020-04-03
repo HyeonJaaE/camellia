@@ -44,5 +44,14 @@ const fn_dateTimeToFormatted = dt => {
 
     return result.formatted;
 };
+
+const checkFile = e => {
+    if (e == "image/gif" || e == "image/jpg" || e == "image/jpeg" || e == "image/png") {
+        return true;
+    } else {
+        return false;
+    }
+};
 export { fn_dateTimeToFormatted };
+export { checkFile };
 export default Hello;
